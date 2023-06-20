@@ -7,7 +7,7 @@
 
 This end-to-end POC of **Azure OpenAI** leverages several Azure services and frameworks to implement a fairly simple Proof on Concept: a Call Center Analysis and Summary application.
 
-# High-level Overview of Program Function
+# High-Level Overview of Program Function
 What the program is doing high-level is it takes an audio file of a call center call, and first it creates a summary of the conversation using 5 key questions:
 
 1. Main reason of the conversation 
