@@ -18,13 +18,13 @@ What the program is doing high-level is it takes an audio file of a call center 
 
 It then creates a second summary as an HTML-formatted email that it sends out.
 
-How this is done is via calls to a few **Azure** services.
+How this is done is via calls to various **Azure** services.
 
-First it converts the provided audio file to convert it to text via a call to the azure **Speech** cognitive service and it speech to text capabilities.
+First, it converts the provided audio file to convert it to text via a call to the Azure **Speech** cognitive service and its speech-to-text capabilities.
 
-This text is the basis of the prompts that we then use. 
+This text is the basis of the prompts that we then use going forard. 
 
-We then call the **Azure OpenAI** service via a lightwight framework SDK called **Semantic Kernel** to interface with **Azure OpenAI**.
+We then call the **Azure OpenAI** service via a lightweight framework SDK called **Semantic Kernel** to interface with **Azure OpenAI**.
 
 **Semantic Kernel (SK)** is a lightweight SDK enabling integration of AI Large
 Language Models (LLMs) with conventional programming languages. The SK extensible
