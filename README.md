@@ -36,7 +36,7 @@ For more go to [plugins](https://learn.microsoft.com/semantic-kernel/howto/).
 
 We will be using it for **Prompts** and for **Summarization**.
 
-The program uses Semantic Kernel to get a summary using the text from the call combined with the 5 key questions.  It outputs this summary to the Console - this could easily be elaborated to write it to a database like CosmosDB to keep a summary resposity of calls with parameters etc. rather than storing full audio files with little or no context.
+The program uses Semantic Kernel to get a summary using the text from the call combined with the 5 key questions.  It outputs this summary to the Console - this could easily be elaborated to write it to a database like CosmosDB to keep a summary repository of calls with parameters etc. rather than storing full audio files with little or no context.
 
 We then formulate an **HTML** email using a second prompt and call to Semantic Kernel that will be sent to a supervisor email address that is specified in the properties summarizing the call.
 
