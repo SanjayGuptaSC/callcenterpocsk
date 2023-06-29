@@ -22,7 +22,7 @@ How this is done is via calls to various **Azure** services.
 
 First, it converts the provided audio file to convert it to text via a call to the Azure **Speech** cognitive service and its speech-to-text capabilities.
 
-This text is the basis of the prompts that we then use going forard. 
+This text is the basis of the prompts that we then use going forward. 
 
 We then call the **Azure OpenAI** service via a lightweight framework SDK called **Semantic Kernel** to interface with **Azure OpenAI**.
 
