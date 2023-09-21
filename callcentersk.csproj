@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UserSecretsId>1cfb08ae-9d92-4a74-be1e-1bcf4cc67a99</UserSecretsId>
   </PropertyGroup>
 <ItemGroup>
    <None Update="appSettings.json">
@@ -22,6 +23,7 @@
     <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.29.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
     <PackageReference Include="Microsoft.SemanticKernel" Version="0.14.547.1-preview" />
   </ItemGroup>
 
