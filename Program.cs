@@ -70,41 +70,55 @@ var summarize = kernel.CreateSemanticFunction(summarizePrompt);
 
 //Output of summary - this could be saved to a database if you wanted to track summaries only
 var summaryOutput = await kernel.RunAsync(callText, summarize);
-Console.WriteLine("Summary of call from file:\"" + audioFilePath+"\"");
-Console.WriteLine(summaryOutput);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
-
-// Run two prompts in sequence (prompt chaining)
-var emailPromptResults = kernel.CreateSemanticFunction(emailBodyPrompt);
-
-//Get results from Azure OpenAI summarizing the call as an email with subject and body
-var emailOutput = await kernel.RunAsync(callText, summarize, emailPromptResults);
-
-//Space out the results for clarity
-Console.WriteLine("\n");
-
-//Output of email summary this could be replaced with a call to 
-//the Microsoft Graph to send via Outlook or directly to an SMTP server
-Console.WriteLine("Email summary of call:");
-Console.WriteLine(emailOutput + "\n");
-
-//Email variables to craft an email and send it
-string connectionString = configRoot.GetSection("EmailServiceConnectionString").Value;
-string sender = configRoot.GetSection("EmailMessage").GetSection("SenderEmailAddress").Value;
-string recipient = configRoot.GetSection("EmailMessage").GetSection("RecieverEmailAddress").Value;
-string subject = configRoot.GetSection("EmailMessage").GetSection("Subject").Value;
-string emailBodyTop = configRoot.GetSection("EmailMessage").GetSection("MessageBodyTop").Value;
-string emailBodyHeader = configRoot.GetSection("EmailMessage").GetSection("MessageBodyHeader").Value;
-string emailBodyBottom = configRoot.GetSection("EmailMessage").GetSection("MessageBodyBottom").Value;
-
-//Create the email body
-string emailContent = emailBodyTop + subject + emailBodyHeader + emailOutput.ToString() + emailBodyBottom;
-
-//Create SendEmail object and send the email
-var sendEmail = new SendEmail();
-try{
-    await sendEmail.sendEmailToRecipient(connectionString, sender, recipient, subject, emailContent);
-}
-catch (Exception e)
+if(summaryOutput.ErrorOccurred)
 {
-    Console.WriteLine("Error sending email: " + e.Message);
+    if(summaryOutput.LastException is Microsoft.SemanticKernel.AI.AIException)
+    {
+        Console.Error.WriteLine(((Microsoft.SemanticKernel.AI.AIException)summaryOutput.LastException).Detail);
+    }
+    else
+    {
+        Console.Error.WriteLine(summaryOutput.LastException.Message);
+    }
+}
+else
+{
+    Console.WriteLine("Summary of call from file:\"" + audioFilePath+"\"");
+    Console.WriteLine(summaryOutput);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+
+    // Run two prompts in sequence (prompt chaining)
+    var emailPromptResults = kernel.CreateSemanticFunction(emailBodyPrompt);
+
+    //Get results from Azure OpenAI summarizing the call as an email with subject and body
+    var emailOutput = await kernel.RunAsync(callText, summarize, emailPromptResults);
+
+    //Space out the results for clarity
+    Console.WriteLine("\n");
+
+    //Output of email summary this could be replaced with a call to 
+    //the Microsoft Graph to send via Outlook or directly to an SMTP server
+    Console.WriteLine("Email summary of call:");
+    Console.WriteLine(emailOutput + "\n");
+
+    //Email variables to craft an email and send it
+    string connectionString = configRoot.GetSection("EmailServiceConnectionString").Value;
+    string sender = configRoot.GetSection("EmailMessage").GetSection("SenderEmailAddress").Value;
+    string recipient = configRoot.GetSection("EmailMessage").GetSection("RecieverEmailAddress").Value;
+    string subject = configRoot.GetSection("EmailMessage").GetSection("Subject").Value;
+    string emailBodyTop = configRoot.GetSection("EmailMessage").GetSection("MessageBodyTop").Value;
+    string emailBodyHeader = configRoot.GetSection("EmailMessage").GetSection("MessageBodyHeader").Value;
+    string emailBodyBottom = configRoot.GetSection("EmailMessage").GetSection("MessageBodyBottom").Value;
+
+    //Create the email body
+    string emailContent = emailBodyTop + subject + emailBodyHeader + emailOutput.ToString() + emailBodyBottom;
+
+    //Create SendEmail object and send the email
+    var sendEmail = new SendEmail();
+    try{
+        await sendEmail.sendEmailToRecipient(connectionString, sender, recipient, subject, emailContent);
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine("Error sending email: " + e.Message);
+    }
 }
