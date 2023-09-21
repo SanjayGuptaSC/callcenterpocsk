@@ -10,6 +10,12 @@
    <None Update="appSettings.json">
      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
    </None>
+    <None Update="app_data\callcentertest - Car Accident.wav">
+     <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+   </None>
+    <None Update="app_data\callcentertest - Surface Headphones.wav">
+     <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+   </None>
 </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Communication.Email" Version="1.0.0" />
