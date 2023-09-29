@@ -5,7 +5,11 @@ using Microsoft.SemanticKernel;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Callcentersk;
+using Azure.Identity;
+using Azure.Core.Diagnostics;
 
+// Setup a listener to monitor logged events.
+using AzureEventSourceListener listener = AzureEventSourceListener.CreateConsoleLogger();
 
 //Initialize the kernel
 var kernel = Kernel.Builder.Build();
@@ -14,12 +18,13 @@ var builder = Host.CreateApplicationBuilder(args);
 var config = builder.Configuration;
 config.Sources.Clear();
 config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+config.AddAzureKeyVault(new Uri($"https://{builder.Configuration["KeyVaultName"]}.vault.azure.net/"), new DefaultAzureCredential());
 var host = builder.Build();
 
 //OpenAI Properties for the Semantic Kernel Service
 string azureOpenAIDeploymentName = config["AzureOpenAI:DeploymentName"];
 string azureOpenAIEndpoint = config["AzureOpenAI:Endpoint"];
-string azureOpenAIKey = config["AzureOpenAI:ApiKey"];
+string azureOpenAIKey = config["CallCenterDemo:AzureOpenAI:ApiKey"];
        
 //Add Azure Cognitive Services Speech to Text Service
 kernel.Config.AddAzureChatCompletionService(
@@ -35,7 +40,7 @@ string csSupervisorFirstName = config["MessageReceiverFirstName"];
 string csAgentName = config["MessageSenderFullName"];
 
 // Speech Cognitive Service Key for Speech Service 
-string speechKey = config["SpeechToText:ServiceKey"];
+string speechKey = config["CallCenterDemo:SpeechToText:ServiceKey"];
 
 // Azure Region of the Speech Cognitive Service 
 string speechRegion = config["SpeechToText:SpeechRegion"];
@@ -104,7 +109,7 @@ else
     Console.WriteLine(emailOutput + "\n");
 
     //Email variables to craft an email and send it
-    string connectionString = config["EmailServiceConnectionString"];
+    string connectionString = config["CallCenterDemo:EmailServiceConnectionString"];
     string sender =           config["EmailMessage:SenderEmailAddress"];
     string recipient =        config["EmailMessage:RecieverEmailAddress"];
     string subject =          config["EmailMessage:Subject"];
