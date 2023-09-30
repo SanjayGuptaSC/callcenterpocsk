@@ -19,7 +19,6 @@ var config = builder.Configuration;
 config.Sources.Clear();
 config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 config.AddAzureKeyVault(new Uri($"https://{builder.Configuration["KeyVaultName"]}.vault.azure.net/"), new DefaultAzureCredential());
-var host = builder.Build();
 
 //OpenAI Properties for the Semantic Kernel Service
 string azureOpenAIDeploymentName = config["AzureOpenAI:DeploymentName"];
