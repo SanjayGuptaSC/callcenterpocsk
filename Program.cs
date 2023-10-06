@@ -19,7 +19,7 @@ string azureOpenAIEndpoint = configRoot.GetSection("AzureOpenAI").GetSection("En
 string azureOpenAIKey = configRoot.GetSection("AzureOpenAI").GetSection("ApiKey").Value;
        
 //Add Azure Cognitive Services Speech to Text Service
-kernel.Config.AddAzureTextCompletionService(
+kernel.Config.AddAzureChatCompletionService(
     azureOpenAIDeploymentName,  // Azure OpenAI Deployment Name
     azureOpenAIEndpoint,        // Azure OpenAI Endpoint
     azureOpenAIKey              // Azure OpenAI Key
@@ -59,7 +59,8 @@ Extract the following from the conversation:
 2. Sentiment of the customer 
 3. How did the agent handle the conversation? 
 4. What was the final outcome of the conversation 
-5. Create a short summary of the conversation";
+5. Create a short summary of the conversation
+6. Create an ouput JSON format that has customer name, main reason of the conversation, sentiment of the customer, agent's handling the conversation and the short summary";
 
 //This is the prompt that will be used to extract info from the call and craft an email body
 string emailBodyPrompt = @"{{$input}}
@@ -102,12 +103,12 @@ else
 
     //Email variables to craft an email and send it
     string connectionString = configRoot.GetSection("EmailServiceConnectionString").Value;
-    string sender = configRoot.GetSection("EmailMessage").GetSection("SenderEmailAddress").Value;
-    string recipient = configRoot.GetSection("EmailMessage").GetSection("RecieverEmailAddress").Value;
-    string subject = configRoot.GetSection("EmailMessage").GetSection("Subject").Value;
-    string emailBodyTop = configRoot.GetSection("EmailMessage").GetSection("MessageBodyTop").Value;
-    string emailBodyHeader = configRoot.GetSection("EmailMessage").GetSection("MessageBodyHeader").Value;
-    string emailBodyBottom = configRoot.GetSection("EmailMessage").GetSection("MessageBodyBottom").Value;
+    string sender           = configRoot.GetSection("EmailMessage").GetSection("SenderEmailAddress").Value;
+    string recipient        = configRoot.GetSection("EmailMessage").GetSection("RecieverEmailAddress").Value;
+    string subject          = configRoot.GetSection("EmailMessage").GetSection("Subject").Value;
+    string emailBodyTop     = configRoot.GetSection("EmailMessage").GetSection("MessageBodyTop").Value;
+    string emailBodyHeader  = configRoot.GetSection("EmailMessage").GetSection("MessageBodyHeader").Value;
+    string emailBodyBottom  = configRoot.GetSection("EmailMessage").GetSection("MessageBodyBottom").Value;
 
     //Create the email body
     string emailContent = emailBodyTop + subject + emailBodyHeader + emailOutput.ToString() + emailBodyBottom;
