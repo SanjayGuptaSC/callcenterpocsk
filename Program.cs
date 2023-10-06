@@ -3,42 +3,49 @@
 
 using Microsoft.SemanticKernel;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Callcentersk;
+using Azure.Identity;
+using Azure.Core.Diagnostics;
 
+// Setup a listener to monitor logged events.
+using AzureEventSourceListener listener = AzureEventSourceListener.CreateConsoleLogger();
 
 //Initialize the kernel
 var kernel = Kernel.Builder.Build();
 
-//Call Properties file to get Azure Cognitive Services Speech to Text Service etc.
-IConfigurationBuilder configuration = new ConfigurationBuilder().AddJsonFile(path: "appSettings.json", false, true);
-IConfigurationRoot configRoot = configuration.Build();
+var builder = Host.CreateApplicationBuilder(args);
+var config = builder.Configuration;
+config.Sources.Clear();
+config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+config.AddAzureKeyVault(new Uri($"https://{builder.Configuration["KeyVaultName"]}.vault.azure.net/"), new DefaultAzureCredential());
 
 //OpenAI Properties for the Semantic Kernel Service
-string azureOpenAIDeploymentName = configRoot.GetSection("AzureOpenAI").GetSection("DeploymentName").Value;
-string azureOpenAIEndpoint = configRoot.GetSection("AzureOpenAI").GetSection("Endpoint").Value;
-string azureOpenAIKey = configRoot.GetSection("AzureOpenAI").GetSection("ApiKey").Value;
+string azureOpenAIDeploymentName = config["AzureOpenAI:DeploymentName"];
+string azureOpenAIEndpoint = config["AzureOpenAI:Endpoint"];
+string azureOpenAIKey = config["CallCenterDemo:AzureOpenAI:ApiKey"];
        
 //Add Azure Cognitive Services Speech to Text Service
-kernel.Config.AddAzureTextCompletionService(
+kernel.Config.AddAzureChatCompletionService(
     azureOpenAIDeploymentName,  // Azure OpenAI Deployment Name
     azureOpenAIEndpoint,        // Azure OpenAI Endpoint
     azureOpenAIKey              // Azure OpenAI Key
 );
 
 //Customer Support Supervisor name 
-string csSupervisorFirstName = configRoot.GetSection("MessageReceiverFirstName").Value;
+string csSupervisorFirstName = config["MessageReceiverFirstName"];
 
 //Customer Support Agent name 
-string csAgentName = configRoot.GetSection("MessageSenderFullName").Value;
+string csAgentName = config["MessageSenderFullName"];
 
 // Speech Cognitive Service Key for Speech Service 
-string speechKey = configRoot.GetSection("SpeechToText").GetSection("ServiceKey").Value;
+string speechKey = config["CallCenterDemo:SpeechToText:ServiceKey"];
 
 // Azure Region of the Speech Cognitive Service 
-string speechRegion = configRoot.GetSection("SpeechToText").GetSection("SpeechRegion").Value;
+string speechRegion = config["SpeechToText:SpeechRegion"];
 
 // File path for the customer support log file
-string audioFilePath = configRoot.GetSection("CallLogFilePath").Value;
+string audioFilePath = config["CallLogFilePath"];
 
 Console.WriteLine($"Converting audio file to text.");
 
@@ -101,13 +108,13 @@ else
     Console.WriteLine(emailOutput + "\n");
 
     //Email variables to craft an email and send it
-    string connectionString = configRoot.GetSection("EmailServiceConnectionString").Value;
-    string sender = configRoot.GetSection("EmailMessage").GetSection("SenderEmailAddress").Value;
-    string recipient = configRoot.GetSection("EmailMessage").GetSection("RecieverEmailAddress").Value;
-    string subject = configRoot.GetSection("EmailMessage").GetSection("Subject").Value;
-    string emailBodyTop = configRoot.GetSection("EmailMessage").GetSection("MessageBodyTop").Value;
-    string emailBodyHeader = configRoot.GetSection("EmailMessage").GetSection("MessageBodyHeader").Value;
-    string emailBodyBottom = configRoot.GetSection("EmailMessage").GetSection("MessageBodyBottom").Value;
+    string connectionString = config["CallCenterDemo:EmailServiceConnectionString"];
+    string sender =           config["EmailMessage:SenderEmailAddress"];
+    string recipient =        config["EmailMessage:RecieverEmailAddress"];
+    string subject =          config["EmailMessage:Subject"];
+    string emailBodyTop =     config["EmailMessage:MessageBodyTop"];
+    string emailBodyHeader =  config["EmailMessage:MessageBodyHeader"];
+    string emailBodyBottom =  config["EmailMessage:MessageBodyBottom"];
 
     //Create the email body
     string emailContent = emailBodyTop + subject + emailBodyHeader + emailOutput.ToString() + emailBodyBottom;
@@ -119,6 +126,6 @@ else
     }
     catch (Exception e)
     {
-        Console.WriteLine("Error sending email: " + e.Message);
+        Console.Error.WriteLine("Error sending email: " + e.Message);
     }
 }

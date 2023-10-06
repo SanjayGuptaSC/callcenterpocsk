@@ -1,5 +1,7 @@
 # Azure OpenAI Call Center POC
 
+[![Azure Account plugin](https://marketplace.visualstudio.com/items?itemName=ms-vscode.azure-account)](https://marketplace.visualstudio.com/items?itemName=ms-vscode.azure-account)
+[![Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
 [![Nuget package](https://img.shields.io/nuget/vpre/Microsoft.SemanticKernel)](https://www.nuget.org/packages/Microsoft.SemanticKernel/)
 [![dotnet](https://github.com/microsoft/semantic-kernel/actions/workflows/dotnet-ci.yml/badge.svg?branch=main)](https://github.com/microsoft/semantic-kernel/actions/workflows/dotnet-ci.yml)
 [![License: MIT](https://img.shields.io/github/license/microsoft/semantic-kernel)](https://github.com/microsoft/semantic-kernel/blob/main/LICENSE)
