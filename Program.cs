@@ -76,7 +76,7 @@ e. Accident location (key: location)
 f. Car damages as an array (key: damages) 
 g. A short, yet detailed summary (key: summary) 
 
-Make sure fields a to g are answered very short, e.g. for location just say the location name. Please answer in JSON machine-readable format, using the keys from above. Format the ouput as JSON object called "results". Pretty print the JSON and make sure that is properly closed at the end. ";
+Make sure fields a to g are answered very short, e.g. for location just say the location name. Please answer in JSON machine-readable format, using the keys from above. Format the ouput as JSON object called 'results'. Pretty print the JSON and make sure that is properly closed at the end. ";
 
 //This is the prompt that will be used to extract info from the call and craft an email body
 string emailBodyPrompt = @"{{$input}}
