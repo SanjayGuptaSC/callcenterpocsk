@@ -11,8 +11,7 @@ using Azure.Core.Diagnostics;
 // Setup a listener to monitor logged events.
 using AzureEventSourceListener listener = AzureEventSourceListener.CreateConsoleLogger();
 
-//Initialize the kernel
-var kernel = Kernel.Builder.Build();
+
 
 var builder = Host.CreateApplicationBuilder(args);
 var config = builder.Configuration;
@@ -23,14 +22,17 @@ config.AddAzureKeyVault(new Uri($"https://{builder.Configuration["KeyVaultName"]
 //OpenAI Properties for the Semantic Kernel Service
 string azureOpenAIDeploymentName = config["AzureOpenAI:DeploymentName"];
 string azureOpenAIEndpoint = config["AzureOpenAI:Endpoint"];
-string azureOpenAIKey = config["CallCenterDemo:AzureOpenAI:ApiKey"];
-       
-//Add Azure Cognitive Services Speech to Text Service
-kernel.Config.AddAzureChatCompletionService(
-    azureOpenAIDeploymentName,  // Azure OpenAI Deployment Name
-    azureOpenAIEndpoint,        // Azure OpenAI Endpoint
-    azureOpenAIKey              // Azure OpenAI Key
-);
+string azureOpenAIKey = config["openai-key"];
+
+//Initialize the kernel
+var kernel = Kernel.CreateBuilder()
+    //Add Azure Cognitive Services Speech to Text Service
+    .AddAzureOpenAIChatCompletion(
+        azureOpenAIDeploymentName,  // Azure OpenAI Deployment Name
+        azureOpenAIEndpoint,        // Azure OpenAI Endpoint
+        azureOpenAIKey              // Azure OpenAI Key
+    ).Build();
+
 
 //Customer Support Supervisor name 
 string csSupervisorFirstName = config["MessageReceiverFirstName"];
@@ -39,7 +41,7 @@ string csSupervisorFirstName = config["MessageReceiverFirstName"];
 string csAgentName = config["MessageSenderFullName"];
 
 // Speech Cognitive Service Key for Speech Service 
-string speechKey = config["CallCenterDemo:SpeechToText:ServiceKey"];
+string speechKey = config["aiservices-key"];
 
 // Azure Region of the Speech Cognitive Service 
 string speechRegion = config["SpeechToText:SpeechRegion"];
@@ -73,31 +75,21 @@ string emailBodyPrompt = @"{{$input}}
 
 Write an email body in HTML format summarizing the call addressed to " + csSupervisorFirstName + " and from the following person " + csAgentName + ".";
 
-var summarize = kernel.CreateSemanticFunction(summarizePrompt);
+var summarize = kernel.CreateFunctionFromPrompt(summarizePrompt);
 
 //Output of summary - this could be saved to a database if you wanted to track summaries only
-var summaryOutput = await kernel.RunAsync(callText, summarize);
-if(summaryOutput.ErrorOccurred)
+try
 {
-    if(summaryOutput.LastException is Microsoft.SemanticKernel.AI.AIException)
-    {
-        Console.Error.WriteLine(((Microsoft.SemanticKernel.AI.AIException)summaryOutput.LastException).Detail);
-    }
-    else
-    {
-        Console.Error.WriteLine(summaryOutput.LastException.Message);
-    }
-}
-else
-{
+    var summaryOutput = await kernel.InvokeAsync(summarize, new() { { "input", callText } });
+
     Console.WriteLine("Summary of call from file:\"" + audioFilePath+"\"");
-    Console.WriteLine(summaryOutput);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+    Console.WriteLine();                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 
     // Run two prompts in sequence (prompt chaining)
-    var emailPromptResults = kernel.CreateSemanticFunction(emailBodyPrompt);
+    var emailPromptResults = kernel.CreateFunctionFromPrompt(emailBodyPrompt);
 
     //Get results from Azure OpenAI summarizing the call as an email with subject and body
-    var emailOutput = await kernel.RunAsync(callText, summarize, emailPromptResults);
+    var emailOutput = await kernel.InvokeAsync(emailPromptResults, new() { { "input", summaryOutput.GetValue<string>() } });
 
     //Space out the results for clarity
     Console.WriteLine("\n");
@@ -108,7 +100,7 @@ else
     Console.WriteLine(emailOutput + "\n");
 
     //Email variables to craft an email and send it
-    string connectionString = config["CallCenterDemo:EmailServiceConnectionString"];
+    string connectionString = config["communicationservice-connectionstring"];
     string sender =           config["EmailMessage:SenderEmailAddress"];
     string recipient =        config["EmailMessage:RecieverEmailAddress"];
     string subject =          config["EmailMessage:Subject"];
@@ -121,11 +113,17 @@ else
 
     //Create SendEmail object and send the email
     var sendEmail = new SendEmail();
-    try{
+    try
+    {
         await sendEmail.sendEmailToRecipient(connectionString, sender, recipient, subject, emailContent);
     }
     catch (Exception e)
     {
         Console.Error.WriteLine("Error sending email: " + e.Message);
     }
+}
+catch (Exception e)
+{
+    Console.Error.WriteLine("Error summarizing call: " + e.Message);
+    return;
 }
