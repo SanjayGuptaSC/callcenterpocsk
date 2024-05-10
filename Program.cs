@@ -98,6 +98,9 @@ try
     // Run two prompts in sequence (prompt chaining)
     var emailPromptResults = kernel.CreateFunctionFromPrompt(emailBodyPrompt);
 
+    //need to wait so we don't send too many prompts to the Azure OpenAI service
+    Thread.Sleep(60000);
+
     //Get results from Azure OpenAI summarizing the call as an email with subject and body
     var emailOutput = await kernel.InvokeAsync(emailPromptResults, new() { { "input", summaryOutput.GetValue<string>() } });
 
