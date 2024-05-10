@@ -68,7 +68,17 @@ Extract the following from the conversation:
 2. Sentiment of the customer 
 3. How did the agent handle the conversation? 
 4. What was the final outcome of the conversation 
-5. Create a short summary of the conversation";
+5. Create a short summary of the conversation
+6. You must extract the following information from the phone conversation below: 
+a. Call reason (key: reason) 
+b. Cause of the incident (key. cause) 
+c. Names of all drivers as an array (key: driver_names) 
+d. Insurance number (key: insurance_number) 
+e. Accident location (key: location) 
+f. Car damages as an array (key: damages) 
+g. A short, yet detailed summary (key: summary) 
+
+Make sure fields a to g are answered very short, e.g. for location just say the location name. Please answer in JSON machine-readable format, using the keys from above. Format the ouput as JSON object called 'results'. Pretty print the JSON and make sure that is properly closed at the end. ";
 
 //This is the prompt that will be used to extract info from the call and craft an email body
 string emailBodyPrompt = @"{{$input}}
